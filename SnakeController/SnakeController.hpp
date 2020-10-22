@@ -39,6 +39,8 @@ private:
         int ttl;
     };
 
+    Segment calculateNewHead(const Segment& currentHead) const;
+
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
@@ -48,6 +50,7 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+
 };
 
 } // namespace Snake
