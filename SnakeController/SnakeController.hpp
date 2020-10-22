@@ -41,6 +41,8 @@ private:
 
     Segment calculateNewHead(const Segment& currentHead) const;
     bool didPlayerLose(const Segment& head) const;
+    void removeOldFood() const;
+    void placeNewFood(const FoodInd&) const;
 
     IPort& m_displayPort;
     IPort& m_foodPort;
