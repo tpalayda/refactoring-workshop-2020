@@ -43,6 +43,7 @@ private:
     bool didPlayerLose(const Segment& head) const;
     void removeOldFood() const;
     void placeNewFood(const FoodInd&) const;
+    void spawnNewFood(const FoodResp&) const;
 
     IPort& m_displayPort;
     IPort& m_foodPort;
