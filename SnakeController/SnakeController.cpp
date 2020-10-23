@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 
 #include "EventT.hpp"
 #include "IPort.hpp"
@@ -63,7 +64,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     }
 }
 
-void Controller::handleTimePassed(const TimeoutInd&)
+void Controller::handleTimePassed(const std::unique_ptr<TimeoutInd>& e)
 {
     Segment newHead = getNewHead();
 
@@ -97,7 +98,7 @@ void Controller::handleTimePassed(const TimeoutInd&)
     cleanNotExistingSnakeSegments();
 }
 
-void Controller::handleDirectionChange(const DirectionInd& directionInd)
+void Controller::handleDirectionChange(const std::unique_ptr<DirectionInd>& directionInd)
 {
     auto direction = directionInd.direction;
 
@@ -106,7 +107,7 @@ void Controller::handleDirectionChange(const DirectionInd& directionInd)
     }
 }
 
-void Controller::handleFoodPositionChange(const FoodInd& receivedFood)
+void Controller::handleFoodPositionChange(const std::unique_ptr<FoodInd>& receivedFood)
 {
     bool requestedFoodCollidedWithSnake = false;
     for (auto const& segment : m_segments) {
@@ -127,7 +128,7 @@ void Controller::handleFoodPositionChange(const FoodInd& receivedFood)
     m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
 }
 
-void Controller::handleNewFood(const FoodResp& requestedFood)
+void Controller::handleNewFood(const std::unique_ptr<FoodResp>& requestedFood)
 {
     bool requestedFoodCollidedWithSnake = false;
     for (auto const& segment : m_segments) {
@@ -216,16 +217,16 @@ Controller::Segment Controller::getNewHead() const
 void Controller::receive(std::unique_ptr<Event> e)
 {
     try {
-        handleTimePassed(*dynamic_cast<EventT<TimeoutInd> const&>(*e));
+        handleTimePassed(e);
     } catch (std::bad_cast&) {
         try {
-            handleDirectionChange(*dynamic_cast<EventT<DirectionInd> const&>(*e));
+            handleDirectionChange(e);
         } catch (std::bad_cast&) {
             try {
-                handleFoodPositionChange(*dynamic_cast<EventT<FoodInd> const&>(*e));
+                handleFoodPositionChange(e);
             } catch (std::bad_cast&) {
                 try {
-                    handleNewFood(*dynamic_cast<EventT<FoodResp> const&>(*e));
+                    handleNewFood(e);
                 } catch (std::bad_cast&) {
                     throw UnexpectedEventException();
                 }
